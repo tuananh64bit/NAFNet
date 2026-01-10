@@ -1,3 +1,3 @@
 # NAFNet-NCKH
 
-cứ docker mà chạy thôi ae
+cứ build dockerfile mà chạy thôi ae
