@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAFNet Cyberpunk Core</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="flex flex-col items-center justify-center p-4">
+
+    <header class="text-center mb-8 mt-6">
+        <h1 class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600 mb-2 drop-shadow-[0_0_10px_rgba(0,240,255,0.5)]">
+            NAFNet <span class="text-white">CORE</span>
+        </h1>
+        <div class="h-1 w-20 bg-cyan-500 mx-auto mb-4"></div>
+        <p class="text-slate-400 text-sm tracking-widest">ADVANCED IMAGE RESTORATION SYSTEM</p>
+    </header>
+
+    <div class="w-full max-w-4xl cyber-box rounded-lg p-8">
+        
+        <div id="state-upload" class="flex flex-col items-center py-6">
+            
+            <div class="flex gap-4 mb-8 w-full justify-center">
+                <button class="task-btn active" data-task="deblur">
+                    <i class="fas fa-wind mb-2 text-2xl"></i>
+                    <span>DEBLUR</span>
+                    <span class="text-[10px] text-slate-400 mt-1">GOPRO DATASET</span>
+                </button>
+                <button class="task-btn" data-task="denoise">
+                    <i class="fas fa-magic mb-2 text-2xl"></i>
+                    <span>DENOISE</span>
+                    <span class="text-[10px] text-slate-400 mt-1">SIDD DATASET</span>
+                </button>
+            </div>
+
+            <div class="w-24 h-24 border-2 border-dashed border-slate-600 rounded-full flex items-center justify-center mb-6">
+                <i class="fas fa-microchip text-4xl text-slate-500"></i>
+            </div>
+            <h3 class="text-2xl mb-6 text-slate-300">Tải ảnh lên hệ thống</h3>
+            
+            <label for="file-input" class="btn-cyber px-10 py-4 font-bold text-xl rounded">
+                <i class="fas fa-upload mr-3"></i> CHỌN ẢNH NGAY
+            </label>
+            <input type="file" id="file-input" class="hidden" accept="image/*, .heic, .heif, .webp">
+            
+            <p class="mt-4 text-xs text-slate-500 font-mono">JPG | PNG | WEBP | HEIC Supported</p>
+        </div>
+
+        <div id="state-preview" class="hidden flex flex-col items-center">
+            <div class="w-full flex justify-between items-center mb-4 border-b border-slate-800 pb-2">
+                <span class="text-cyan-400 font-mono">MODE: <span id="selected-mode-display" class="font-bold text-white">DEBLUR</span></span>
+                <span class="text-slate-500 text-sm" id="filename-display">filename.jpg</span>
+            </div>
+
+            <img id="preview-img" class="max-h-[400px] border border-cyan-500/30 shadow-[0_0_20px_rgba(0,240,255,0.1)] mb-4 hidden">
+            
+            <div id="no-preview-box" class="hidden bg-slate-900/80 p-6 border border-yellow-600 rounded text-center mb-4">
+                <i class="fas fa-eye-slash text-3xl text-yellow-500 mb-2"></i>
+                <p class="text-yellow-400 font-bold">KHÔNG CÓ BẢN XEM TRƯỚC</p>
+                <p class="text-xs text-slate-500 mt-2">(Định dạng này không hỗ trợ hiển thị trên trình duyệt)</p>
+            </div>
+
+            <div class="flex gap-4 mt-4">
+                <button id="process-btn" class="bg-cyan-600 hover:bg-cyan-500 text-black font-bold py-3 px-8 rounded shadow-[0_0_15px_#00f0ff] transition-all">
+                    <i class="fas fa-bolt mr-2"></i> XỬ LÝ NGAY
+                </button>
+                <button id="cancel-btn" class="border border-slate-600 text-slate-400 py-3 px-6 rounded hover:bg-slate-800 transition-all">
+                    Quay lại
+                </button>
+            </div>
+        </div>
+
+        <div id="state-loading" class="hidden flex flex-col items-center py-20">
+            <div class="loader mb-6"></div>
+            <p class="text-cyan-400 tracking-[0.3em] animate-pulse">SYSTEM PROCESSING...</p>
+            <p class="text-slate-500 text-sm mt-2 font-mono">Running Neural Network...</p>
+        </div>
+
+        <div id="state-result" class="hidden">
+            <h3 class="text-cyan-400 mb-4 font-bold border-l-4 border-cyan-400 pl-3">KẾT QUẢ PHÂN TÍCH</h3>
+            
+            <div id="compare-container" class="comparison-view bg-black select-none touch-none group">
+                <img id="after-img" class="absolute inset-0 w-full h-full object-contain pointer-events-none">
+                
+                <div id="before-wrapper" class="absolute top-0 left-0 w-1/2 h-full overflow-hidden border-r-2 border-cyan-400 bg-slate-900">
+                    <img id="before-img" class="absolute top-0 left-0 max-w-none h-full object-contain pointer-events-none filter grayscale-[30%]">
+                </div>
+
+                <div id="handle" class="absolute top-0 bottom-0 left-1/2 w-1 bg-cyan-400 z-10 cursor-ew-resize flex items-center justify-center">
+                    <div class="w-8 h-8 bg-black border-2 border-cyan-400 rounded-full flex items-center justify-center shadow-[0_0_10px_#00f0ff]">
+                        <i class="fas fa-arrows-alt-h text-cyan-400 text-xs"></i>
+                    </div>
+                </div>
+
+                <span class="absolute top-2 left-2 bg-black/80 text-white text-[10px] px-2 py-1 rounded">TRƯỚC (GỐC)</span>
+                <span class="absolute top-2 right-2 bg-black/80 text-cyan-400 text-[10px] px-2 py-1 rounded border border-cyan-400">SAU (AI)</span>
+            </div>
+
+            <div class="flex justify-center mt-6 gap-4">
+                <a id="download-btn" href="#" class="btn-cyber px-6 py-3 rounded text-sm no-underline">
+                    <i class="fas fa-download mr-2"></i> TẢI VỀ
+                </a>
+                <button onclick="location.reload()" class="text-slate-500 hover:text-white underline text-sm">
+                    Làm mới
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

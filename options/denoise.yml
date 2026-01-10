@@ -1,0 +1,46 @@
+# ------------------------------------------------------------------------
+# Denoising Configuration (SIDD) - STRICT LOAD FIX
+# ------------------------------------------------------------------------
+
+name: NAFNet-SIDD-width64-demo
+model_type: ImageRestorationModel
+scale: 1
+num_gpu: 0  # Chạy CPU
+manual_seed: 10
+
+# Network structures
+network_g:
+  # Quay lại NAFNet thường (vì SIDD gốc thường dùng loại này)
+  type: NAFNet 
+  width: 64
+  # Giữ nguyên cấu trúc chuẩn
+  enc_blk_nums: [2, 2, 4, 8]
+  middle_blk_num: 12
+  dec_blk_nums: [2, 2, 2, 2]
+
+# Path
+path:
+  pretrain_network_g: experiments/pretrained_models/denoise.pth
+  
+  # --- QUAN TRỌNG: Đổi thành false để bỏ qua lỗi thừa key ---
+  strict_load_g: false 
+  
+  resume_state: ~
+
+# Validation settings
+val:
+  save_img: true
+  grids: false
+  metrics:
+    psnr:
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: false
+    ssim:
+      type: calculate_ssim
+      crop_border: 0
+      test_y_channel: false
+
+dist_params:
+  backend: nccl
+  port: 29500

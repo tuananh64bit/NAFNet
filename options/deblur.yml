@@ -1,0 +1,51 @@
+# ------------------------------------------------------------------------
+# general settings
+name: NAFNet-GoPro-width64-demo
+model_type: ImageRestorationModel
+scale: 1
+num_gpu: 0 # Đảm bảo chạy bằng CPU
+manual_seed: 10
+
+# ⚠️ Phần datasets bị chú thích vì chạy demo không cần LMDB dataset
+# datasets:
+
+#   test:
+#     name: gopro-test
+#     type: PairedImageDataset
+#     dataroot_gt: ./datasets/GoPro/test/target.lmdb
+#     dataroot_lq: ./datasets/GoPro/test/input.lmdb
+#     io_backend:
+#       type: lmdb
+
+# network structures
+network_g:
+  type: NAFNetLocal
+  width: 64
+  enc_blk_nums: [1, 1, 1, 28]
+  middle_blk_num: 1
+  dec_blk_nums: [1, 1, 1, 1]
+
+# path
+path:
+  pretrain_network_g: experiments/pretrained_models/deblur.pth
+  strict_load_g: true
+  resume_state: ~
+
+# validation settings (Bỏ chú thích để khắc phục lỗi KeyError: 'val')
+val:
+  save_img: true
+  grids: false
+  metrics:
+    psnr:
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: false
+    ssim:
+      type: calculate_ssim
+      crop_border: 0
+      test_y_channel: false
+
+# dist training settings
+dist_params:
+  backend: nccl
+  port: 29500
