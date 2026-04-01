@@ -2,8 +2,8 @@ fastapi
 uvicorn
 python-multipart
 pydantic
-torch==1.11.0+cpu
-torchvision==0.12.0+cpu
+torch==1.11.0
+torchvision==0.12.0
 torchaudio==0.11.0
 numpy==1.23.5
 lmdb

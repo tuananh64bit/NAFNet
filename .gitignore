@@ -5,3 +5,4 @@ results/*
 uploads/*
 experiments/pretrained_models/*
 .DS_Store
+.env/

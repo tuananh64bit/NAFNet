@@ -1,113 +1,178 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NAFNet Cyberpunk Core</title>
+    <title>NAFNet - Image Restoration</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="flex flex-col items-center justify-center p-4">
-
-    <header class="text-center mb-8 mt-6">
-        <h1 class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600 mb-2 drop-shadow-[0_0_10px_rgba(0,240,255,0.5)]">
-            NAFNet <span class="text-white">CORE</span>
-        </h1>
-        <div class="h-1 w-20 bg-cyan-500 mx-auto mb-4"></div>
-        <p class="text-slate-400 text-sm tracking-widest">ADVANCED IMAGE RESTORATION SYSTEM</p>
-    </header>
-
-    <div class="w-full max-w-4xl cyber-box rounded-lg p-8">
-        
-        <div id="state-upload" class="flex flex-col items-center py-6">
-            
-            <div class="flex gap-4 mb-8 w-full justify-center">
-                <button class="task-btn active" data-task="deblur">
-                    <i class="fas fa-wind mb-2 text-2xl"></i>
-                    <span>DEBLUR</span>
-                    <span class="text-[10px] text-slate-400 mt-1">GOPRO DATASET</span>
-                </button>
-                <button class="task-btn" data-task="denoise">
-                    <i class="fas fa-magic mb-2 text-2xl"></i>
-                    <span>DENOISE</span>
-                    <span class="text-[10px] text-slate-400 mt-1">SIDD DATASET</span>
-                </button>
-            </div>
-
-            <div class="w-24 h-24 border-2 border-dashed border-slate-600 rounded-full flex items-center justify-center mb-6">
-                <i class="fas fa-microchip text-4xl text-slate-500"></i>
-            </div>
-            <h3 class="text-2xl mb-6 text-slate-300">Tải ảnh lên hệ thống</h3>
-            
-            <label for="file-input" class="btn-cyber px-10 py-4 font-bold text-xl rounded">
-                <i class="fas fa-upload mr-3"></i> CHỌN ẢNH NGAY
-            </label>
-            <input type="file" id="file-input" class="hidden" accept="image/*, .heic, .heif, .webp">
-            
-            <p class="mt-4 text-xs text-slate-500 font-mono">JPG | PNG | WEBP | HEIC Supported</p>
-        </div>
-
-        <div id="state-preview" class="hidden flex flex-col items-center">
-            <div class="w-full flex justify-between items-center mb-4 border-b border-slate-800 pb-2">
-                <span class="text-cyan-400 font-mono">MODE: <span id="selected-mode-display" class="font-bold text-white">DEBLUR</span></span>
-                <span class="text-slate-500 text-sm" id="filename-display">filename.jpg</span>
-            </div>
-
-            <img id="preview-img" class="max-h-[400px] border border-cyan-500/30 shadow-[0_0_20px_rgba(0,240,255,0.1)] mb-4 hidden">
-            
-            <div id="no-preview-box" class="hidden bg-slate-900/80 p-6 border border-yellow-600 rounded text-center mb-4">
-                <i class="fas fa-eye-slash text-3xl text-yellow-500 mb-2"></i>
-                <p class="text-yellow-400 font-bold">KHÔNG CÓ BẢN XEM TRƯỚC</p>
-                <p class="text-xs text-slate-500 mt-2">(Định dạng này không hỗ trợ hiển thị trên trình duyệt)</p>
-            </div>
-
-            <div class="flex gap-4 mt-4">
-                <button id="process-btn" class="bg-cyan-600 hover:bg-cyan-500 text-black font-bold py-3 px-8 rounded shadow-[0_0_15px_#00f0ff] transition-all">
-                    <i class="fas fa-bolt mr-2"></i> XỬ LÝ NGAY
-                </button>
-                <button id="cancel-btn" class="border border-slate-600 text-slate-400 py-3 px-6 rounded hover:bg-slate-800 transition-all">
-                    Quay lại
-                </button>
+<body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-300 min-h-screen flex flex-col font-sans">
+    
+    <!-- Navbar -->
+    <nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex-shrink-0 flex items-center">
+                    <i class="fas fa-layer-group text-blue-600 dark:text-blue-400 text-2xl mr-3"></i>
+                    <span class="font-bold text-xl tracking-tight">NAFNet Framework</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-500 dark:text-gray-400 hidden sm:block">Nonlinear Activation Free Network</span>
+                    <button id="theme-toggle" class="p-2 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <i id="theme-icon" class="fas fa-moon"></i>
+                    </button>
+                </div>
             </div>
         </div>
+    </nav>
 
-        <div id="state-loading" class="hidden flex flex-col items-center py-20">
-            <div class="loader mb-6"></div>
-            <p class="text-cyan-400 tracking-[0.3em] animate-pulse">SYSTEM PROCESSING...</p>
-            <p class="text-slate-500 text-sm mt-2 font-mono">Running Neural Network...</p>
-        </div>
-
-        <div id="state-result" class="hidden">
-            <h3 class="text-cyan-400 mb-4 font-bold border-l-4 border-cyan-400 pl-3">KẾT QUẢ PHÂN TÍCH</h3>
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center p-4 sm:p-8">
+        <div class="w-full max-w-5xl bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors">
             
-            <div id="compare-container" class="comparison-view bg-black select-none touch-none group">
-                <img id="after-img" class="absolute inset-0 w-full h-full object-contain pointer-events-none">
-                
-                <div id="before-wrapper" class="absolute top-0 left-0 w-1/2 h-full overflow-hidden border-r-2 border-cyan-400 bg-slate-900">
-                    <img id="before-img" class="absolute top-0 left-0 max-w-none h-full object-contain pointer-events-none filter grayscale-[30%]">
+            <div class="p-8">
+                <!-- Header / Intro -->
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Image Restoration Engine</h2>
+                    <p class="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">Upload an image to evaluate the NAFNet model's performance on deblurring or denoising tasks. Powered by PyTorch and FastAPI.</p>
                 </div>
 
-                <div id="handle" class="absolute top-0 bottom-0 left-1/2 w-1 bg-cyan-400 z-10 cursor-ew-resize flex items-center justify-center">
-                    <div class="w-8 h-8 bg-black border-2 border-cyan-400 rounded-full flex items-center justify-center shadow-[0_0_10px_#00f0ff]">
-                        <i class="fas fa-arrows-alt-h text-cyan-400 text-xs"></i>
+                <!-- STATE: UPLOAD -->
+                <div id="state-upload" class="flex flex-col items-center">
+                    
+                    <!-- Task Selector -->
+                    <div class="flex p-1 bg-gray-100 dark:bg-gray-900 rounded-lg mb-8 shadow-inner border border-gray-200 dark:border-gray-700">
+                        <button class="task-btn px-8 py-2.5 rounded-md text-sm font-medium transition-all active-task" data-task="deblur">
+                            <i class="fas fa-wind mr-2"></i> Deblur (GoPro)
+                        </button>
+                        <button class="task-btn px-8 py-2.5 rounded-md text-sm font-medium transition-all text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white" data-task="denoise">
+                            <i class="fas fa-magic mr-2"></i> Denoise (SIDD)
+                        </button>
+                    </div>
+
+                    <!-- Drag & Drop Zone -->
+                    <div id="drop-zone" class="w-full max-w-2xl border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-12 text-center hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all cursor-pointer group">
+                        <div class="w-20 h-20 mx-auto bg-blue-100 dark:bg-gray-700 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-cloud-upload-alt text-3xl"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-1">Click or drag image here</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Supports JPG, PNG, WEBP (Max 10MB)</p>
+                        
+                        <input type="file" id="file-input" class="hidden" accept="image/*, .heic, .heif, .webp">
+                        <button class="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 px-6 py-2 rounded-lg font-medium shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            Browse Files
+                        </button>
                     </div>
                 </div>
 
-                <span class="absolute top-2 left-2 bg-black/80 text-white text-[10px] px-2 py-1 rounded">TRƯỚC (GỐC)</span>
-                <span class="absolute top-2 right-2 bg-black/80 text-cyan-400 text-[10px] px-2 py-1 rounded border border-cyan-400">SAU (AI)</span>
-            </div>
+                <!-- STATE: PREVIEW & LOADING -->
+                <div id="state-preview" class="hidden flex-col items-center w-full">
+                    <div class="w-full max-w-4xl flex justify-between items-center mb-4 bg-gray-50 dark:bg-gray-900 px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center">
+                            <i class="fas fa-image text-gray-400 mr-3"></i>
+                            <span id="filename-display" class="font-medium text-gray-700 dark:text-gray-300 truncate max-w-xs">filename.jpg</span>
+                        </div>
+                        <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 text-xs font-bold rounded-full uppercase tracking-wider" id="selected-mode-display">DEBLUR</span>
+                    </div>
 
-            <div class="flex justify-center mt-6 gap-4">
-                <a id="download-btn" href="#" class="btn-cyber px-6 py-3 rounded text-sm no-underline">
-                    <i class="fas fa-download mr-2"></i> TẢI VỀ
-                </a>
-                <button onclick="location.reload()" class="text-slate-500 hover:text-white underline text-sm">
-                    Làm mới
-                </button>
+                    <div class="relative w-full max-w-4xl bg-gray-100 dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden flex justify-center items-center min-h-[300px] mb-6 shadow-inner">
+                        <img id="preview-img" class="max-h-[500px] object-contain hidden z-10">
+                        
+                        <!-- No preview state -->
+                        <div id="no-preview-box" class="hidden text-center p-8 z-10 w-full">
+                            <i class="fas fa-file-image text-4xl text-gray-400 mb-3"></i>
+                            <p class="text-gray-600 dark:text-gray-400 font-medium">Image queued for processing</p>
+                            <p class="text-xs text-gray-500 mt-1">Preview not available for this format</p>
+                        </div>
+
+                        <!-- Loading overlay -->
+                        <div id="loading-overlay" class="absolute inset-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center hidden opacity-0 transition-opacity duration-300">
+                            <div class="border-4 border-gray-200 dark:border-gray-700 border-t-blue-600 rounded-full w-12 h-12 animate-spin mb-4"></div>
+                            <p class="text-gray-900 dark:text-white font-medium">Running Deep Neural Network...</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">This may take a few seconds</p>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <button id="cancel-btn" class="px-6 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50">
+                            Cancel
+                        </button>
+                        <button id="process-btn" class="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/30 rounded-lg font-medium transition-all disabled:opacity-50 flex items-center">
+                            <i class="fas fa-cogs mr-2"></i> Process Image
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STATE: RESULT -->
+                <div id="state-result" class="hidden w-full flex-col items-center">
+                    <div class="w-full max-w-5xl mb-6">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+                            <i class="fas fa-chart-bar text-blue-500 mr-2"></i> Analysis Results
+                        </h3>
+                        
+                        <!-- Comparison Container -->
+                        <div id="compare-container" class="relative w-full bg-gray-100 dark:bg-gray-900 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 aspect-video shadow-inner touch-none select-none">
+                            <!-- After Image (Bottom layer) -->
+                            <img id="after-img" class="absolute inset-0 w-full h-full object-contain pointer-events-none">
+                            
+                            <!-- Before Image (Top layer, cropped) -->
+                            <div id="before-wrapper" class="absolute top-0 left-0 w-1/2 h-full overflow-hidden border-r-2 border-white shadow-[2px_0_10px_rgba(0,0,0,0.2)] dark:border-blue-400 z-10">
+                                <img id="before-img" class="absolute top-0 left-0 max-w-none h-full object-contain pointer-events-none">
+                            </div>
+
+                            <!-- Slider Handle -->
+                            <div id="handle" class="absolute top-0 bottom-0 left-1/2 w-0.5 bg-white dark:bg-blue-400 z-20 cursor-ew-resize flex items-center justify-center -ml-[1px]">
+                                <div class="w-8 h-8 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-blue-400 rounded-full flex items-center justify-center shadow-lg text-gray-500 dark:text-blue-400">
+                                    <i class="fas fa-arrows-alt-h text-xs"></i>
+                                </div>
+                            </div>
+
+                            <!-- Badges -->
+                            <div class="absolute top-4 left-4 z-30 pointer-events-none">
+                                <span class="bg-gray-900/80 backdrop-blur-sm text-white text-xs px-3 py-1.5 rounded-md font-medium tracking-wide shadow-sm">ORIGINAL</span>
+                            </div>
+                            <div class="absolute top-4 right-4 z-30 pointer-events-none">
+                                <span class="bg-blue-600/90 backdrop-blur-sm text-white text-xs px-3 py-1.5 rounded-md font-medium tracking-wide shadow-sm flex items-center">
+                                    <i class="fas fa-magic mr-1.5 text-[10px]"></i> AI RESTORED
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <button id="reset-btn" class="px-6 py-2.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            <i class="fas fa-redo-alt mr-2"></i> New Analysis
+                        </button>
+                        <a id="download-btn" href="#" class="px-8 py-2.5 bg-green-600 hover:bg-green-700 text-white shadow-md shadow-green-500/30 rounded-lg font-medium transition-all flex items-center">
+                            <i class="fas fa-download mr-2"></i> Download Result
+                        </a>
+                    </div>
+                </div>
+
             </div>
         </div>
-    </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-6 text-sm text-gray-500 dark:text-gray-400">
+        <p>Scientific Research Project &middot; NAFNet Framework</p>
+    </footer>
 
     <script src="/static/script.js"></script>
 </body>

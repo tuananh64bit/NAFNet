@@ -1,44 +1,61 @@
-# NAFNet-NCKH
+# NAFNet System (Scientific Research Demo)
 
-lên docker hub tìm image tuananh64bit/nafnet-api
+*Dự án Ứng dụng mô hình NAFNet (Nonlinear Activation Free Network) vào việc phục hồi hình ảnh (Image Deblurring & Denoising). Phiên bản này được tối ưu hóa đặc biệt để làm giao diện trình diễn chuẩn mực cho các công trình nghiên cứu khoa học.*
 
-kéo về mà chạy
+---
 
-khỏi cảm ơn !!!
+## ✨ Tính Năng Nổi Bật (Phiên Bản Tối Ưu Mới Nhất)
+Hệ thống không chỉ là mã nguồn model khô khan, mà là một Server hoàn thiện với đầy đủ cơ chế tính toán thực tế:
 
-<img width="1536" height="866" alt="image" src="https://github.com/user-attachments/assets/910b91ba-350a-4ebc-8a6e-c84a92541900" />
+- **Giao diện Học thuật (Academic UI):** Thiết kế Dark/Light mode tinh giản bằng **Tailwind CSS**, loại bỏ chi tiết rườm rà để tập trung tối đa vào việc đối chiếu kết quả hình ảnh (Before/After Slider). Hỗ trợ **kéo/thả ảnh (Drag & Drop)** thông minh.
+- **Đa nhiệm không Nghẽn (Non-blocking Web Server):** Sử dụng `FastAPI` với phương pháp ThreadPool Offloading. Việc chạy AI không làm sụp/treo sự kiện (Event Loop) của web, cho phép người dùng lướt trang web dẫu AI đang load.
+- **Phòng chống Vỡ RAM (OOM) hàng loạt:** Việc dự đoán AI (Inference) được cấp phát thông qua một cổng bảo vệ **`threading.Lock`**. Đảm bảo máy chủ giải quyết từng khung hình một cách an toàn mà không sợ nổ RAM nếu có lượng truy cập đột biến.
+- **Tự động Dọn Rác ổ đĩa:** Các hệ thống xử lý ảnh thông thường hay tích tụ rác ngầm. Hệ thống này có chốt chặn `FastAPI BackgroundTasks` để "hủy dấu vết" (xóa tệp) liền ngay sau khi dữ liệu hình ảnh được chuyển xong về phía người dùng.
+- **Mở khóa sức mạnh vi xử lý:** Phá ngục các giới hạn luồng mặc định, cho phép PyTorch vắt kiệt sức mạnh đa nhân (như Intel Core i7) để ra kết quả nhanh nhất.
 
-# Hướng dẫn sử dụng API (API Documentation)
+## ⚙️ Hướng dẫn Cài đặt & Khởi chạy
 
-Server cung cấp một API chính để xử lý ảnh (khử nhiễu hoặc làm nét). Dưới đây là thông số chi tiết để tích hợp hoặc kiểm thử.
+### 1. Chuẩn bị môi trường
+Yêu cầu: `Python 3.10`
 
-## 1. Endpoint xử lý ảnh
+Khởi tạo Virtual Environment và cài đặt bằng lệnh:
+```bash
+python3.10 -m venv .env
+source .env/bin/activate
+pip install -r requirements.txt
+```
+*(Nếu bạn dùng macOS, các chứng chỉ thư viện đã được loại bỏ cờ `+cpu` dư thừa tại tệp req nhằm tương thích với Homebrew).*
 
-* **URL:** `/api/process`
-* **Method:** `POST`
-* **Content-Type:** `multipart/form-data`
-* 
-## 2. Sử dụng Giao diện Web (Web Interface)
+### 2. File Trọng số (Pre-trained Models)
+Đảm bảo bạn đã tải hai tệp trọng số `deblur.pth` và `denoise.pth` (tổng dung lượng khoảng ~750 MB) vào đúng đường dẫn sau để máy chủ nhận diện:
+- `experiments/pretrained_models/deblur.pth`
+- `experiments/pretrained_models/denoise.pth`
 
-Server đã tích hợp sẵn một giao diện người dùng đơn giản (UI) để bạn có thể kiểm tra nhanh các tính năng mà không cần dùng code hay Postman.
+### 3. Khởi Động Web Server
+Khởi chạy tệp gốc:
+```bash
+source .env/bin/activate
+python server.py
+# Hoặc chạy lệnh Uvicorn: uvicorn server:app --host 0.0.0.0 --port 8000
+```
+Truy cập qua trình duyệt: `http://localhost:8000/`
 
-### Cách truy cập:
-1. Mở trình duyệt web (Chrome, Edge, Firefox,...).
-2. Truy cập địa chỉ: **[http://localhost:8000](http://localhost:8000)** (tùy vào port ae chạy docker mà sửa nhé)
+---
 
-### Chức năng trên web:
-* **Upload ảnh:** Chọn ảnh từ máy tính của bạn.
-* **Chọn Task:** Lựa chọn giữa `deblur` (Làm nét) hoặc `denoise` (Khử nhiễu).
-* **Xem kết quả:** Nhấn nút xử lý và xem ảnh kết quả hiển thị trực tiếp trên trình duyệt.
-  
-### Tham số (Body Parameters)
+## 🛠 Cấu Trúc Khung Dự Án
+```text
+NAFNet/
+├── server.py              # Tâm điểm API, AI Lock, Model Caching
+├── requirements.txt       # Tất cả Dependencies
+├── static/                # Thư mục chứa giao diện (FE)
+│   ├── index.html         # Khung HTML giao diện chính
+│   ├── script.js          # Logic DragDrop & Before/After Validation
+│   └── style.css          # Định kiểu Tailwind & Scrollbars
+├── options/               # Tệp .yml mapping cấu trúc Net
+├── basicsr/               # Thư viện core PyTorch của NAFNet
+└── experiments/
+    └── pretrained_models/ # Thư mục chứa Model parameters (.pth)
+```
 
-| Tham số | Kiểu dữ liệu | Bắt buộc | Mô tả | Giá trị cho phép |
-| :--- | :--- | :---: | :--- | :--- |
-| `file` | File (Binary) | ✅ | File ảnh cần xử lý. | `.png`, `.jpg`, `.jpeg` |
-| `task` | String | ❌ | Loại tác vụ muốn thực hiện. <br>*(Mặc định: deblur)* | `deblur` (Làm nét)<br>`denoise` (Khử nhiễu) |
-
-### Phản hồi (Response)
-
-* **Thành công (200 OK):** Trả về file ảnh định dạng `.png` đã được xử lý.
-* **Lỗi (400/500):** Trả về JSON chứa thông báo lỗi.
+## 📝 Bản quyền & Giấy phép
+Mã nguồn NAFNet gốc thuộc MIT License của tác giả. Thiết kế các tùy chỉnh thuật toán hệ thống Web Fast Inference này thuộc phạm vi tài liệu nghiên cứu và triển khai mở rộng.
