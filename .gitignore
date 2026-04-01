@@ -1,8 +1,21 @@
+# Environments
 .venv/
-.idea/*
+.env/
+
+# IDE
+.idea/
+
+# Python
 *__pycache__*
-*.sh
+*.pyc
+
+# Runtime data
 results/*
 uploads/*
-experiments/pretrained_models/*
+
+# Pre-trained models (too large for Git, use download_models.py)
+experiments/pretrained_models/*.pth
+
+# OS
 .DS_Store
+Thumbs.db

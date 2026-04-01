@@ -1,0 +1,11 @@
+.venv/
+.git/
+.gitignore
+.idea/
+.DS_Store
+__pycache__/
+uploads/
+results/
+experiments/pretrained_models/*.pth
+*.md
+LICENSE

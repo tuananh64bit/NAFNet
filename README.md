@@ -1,61 +1,109 @@
-# NAFNet System (Scientific Research Demo)
+# NAFNet — Image Restoration System
 
-*Dự án Ứng dụng mô hình NAFNet (Nonlinear Activation Free Network) vào việc phục hồi hình ảnh (Image Deblurring & Denoising). Phiên bản này được tối ưu hóa đặc biệt để làm giao diện trình diễn chuẩn mực cho các công trình nghiên cứu khoa học.*
+> Dự án Nghiên cứu Khoa học ứng dụng mô hình **NAFNet** (Nonlinear Activation Free Network) vào bài toán phục hồi hình ảnh: **Khử mờ (Deblurring)** và **Khử nhiễu (Denoising)**.
 
 ---
 
-## ✨ Tính Năng Nổi Bật (Phiên Bản Tối Ưu Mới Nhất)
-Hệ thống không chỉ là mã nguồn model khô khan, mà là một Server hoàn thiện với đầy đủ cơ chế tính toán thực tế:
+## ✨ Tính năng
 
-- **Giao diện Học thuật (Academic UI):** Thiết kế Dark/Light mode tinh giản bằng **Tailwind CSS**, loại bỏ chi tiết rườm rà để tập trung tối đa vào việc đối chiếu kết quả hình ảnh (Before/After Slider). Hỗ trợ **kéo/thả ảnh (Drag & Drop)** thông minh.
-- **Đa nhiệm không Nghẽn (Non-blocking Web Server):** Sử dụng `FastAPI` với phương pháp ThreadPool Offloading. Việc chạy AI không làm sụp/treo sự kiện (Event Loop) của web, cho phép người dùng lướt trang web dẫu AI đang load.
-- **Phòng chống Vỡ RAM (OOM) hàng loạt:** Việc dự đoán AI (Inference) được cấp phát thông qua một cổng bảo vệ **`threading.Lock`**. Đảm bảo máy chủ giải quyết từng khung hình một cách an toàn mà không sợ nổ RAM nếu có lượng truy cập đột biến.
-- **Tự động Dọn Rác ổ đĩa:** Các hệ thống xử lý ảnh thông thường hay tích tụ rác ngầm. Hệ thống này có chốt chặn `FastAPI BackgroundTasks` để "hủy dấu vết" (xóa tệp) liền ngay sau khi dữ liệu hình ảnh được chuyển xong về phía người dùng.
-- **Mở khóa sức mạnh vi xử lý:** Phá ngục các giới hạn luồng mặc định, cho phép PyTorch vắt kiệt sức mạnh đa nhân (như Intel Core i7) để ra kết quả nhanh nhất.
+| Tính năng | Mô tả |
+|---|---|
+| **Giao diện Light / Dark Mode** | UI học thuật, tối giản, chuyển đổi sáng–tối bằng một nút bấm |
+| **Drag & Drop Upload** | Kéo thả ảnh trực tiếp vào trình duyệt để xử lý |
+| **Before / After Slider** | So sánh trực quan ảnh gốc và ảnh sau khi AI phục hồi |
+| **Thread-safe Inference** | Sử dụng `threading.Lock` để xử lý an toàn khi có nhiều request đồng thời |
+| **Auto Cleanup** | `BackgroundTasks` tự động xóa file tạm sau khi trả kết quả |
+| **Docker Ready** | Đóng gói toàn bộ hệ thống thành Docker Image, chạy 1 lệnh duy nhất |
 
-## ⚙️ Hướng dẫn Cài đặt & Khởi chạy
+---
 
-### 1. Chuẩn bị môi trường
-Yêu cầu: `Python 3.10`
+## 🚀 Bắt đầu nhanh
 
-Khởi tạo Virtual Environment và cài đặt bằng lệnh:
+### Cách 1: Dùng Docker (Khuyến nghị)
+
+Không cần cài Python hay thư viện gì cả. Chỉ cần có [Docker](https://docs.docker.com/get-docker/):
+
 ```bash
+# Build image (tự động tải model ~750MB)
+docker build -t nafnet .
+
+# Chạy container
+docker run -p 8000:8000 nafnet
+```
+
+Mở trình duyệt: **http://localhost:8000**
+
+### Cách 2: Chạy trực tiếp (Development)
+
+**Yêu cầu:** Python 3.10
+
+```bash
+# 1. Tạo môi trường ảo
 python3.10 -m venv .venv
 source .venv/bin/activate
+
+# 2. Cài thư viện
 pip install -r requirements.txt
-```
-*(Nếu bạn dùng macOS, các chứng chỉ thư viện đã được loại bỏ cờ `+cpu` dư thừa tại tệp req nhằm tương thích với Homebrew).*
 
-### 2. File Trọng số (Pre-trained Models)
-Đảm bảo bạn đã tải hai tệp trọng số `deblur.pth` và `denoise.pth` (tổng dung lượng khoảng ~750 MB) vào đúng đường dẫn sau để máy chủ nhận diện:
-- `experiments/pretrained_models/deblur.pth`
-- `experiments/pretrained_models/denoise.pth`
+# 3. Tải model (~750MB)
+python download_models.py
 
-### 3. Khởi Động Web Server
-Khởi chạy tệp gốc:
-```bash
-source .venv/bin/activate
+# 4. Chạy server
 python server.py
-# Hoặc chạy lệnh Uvicorn: uvicorn server:app --host 0.0.0.0 --port 8000
 ```
-Truy cập qua trình duyệt: `http://localhost:8000/`
+
+Mở trình duyệt: **http://localhost:8000**
 
 ---
 
-## 🛠 Cấu Trúc Khung Dự Án
-```text
+## 📁 Cấu trúc dự án
+
+```
 NAFNet/
-├── server.py              # Tâm điểm API, AI Lock, Model Caching
-├── requirements.txt       # Tất cả Dependencies
-├── static/                # Thư mục chứa giao diện (FE)
-│   ├── index.html         # Khung HTML giao diện chính
-│   ├── script.js          # Logic DragDrop & Before/After Validation
-│   └── style.css          # Định kiểu Tailwind & Scrollbars
-├── options/               # Tệp .yml mapping cấu trúc Net
-├── basicsr/               # Thư viện core PyTorch của NAFNet
+├── server.py              # API Server (FastAPI + ThreadPool + AI Lock)
+├── download_models.py     # Script tải model từ Google Drive
+├── requirements.txt       # Danh sách thư viện Python
+├── Dockerfile             # Đóng gói Docker Image
+├── .dockerignore          # Loại trừ file không cần thiết khi build Docker
+│
+├── static/                # Giao diện Frontend
+│   ├── index.html         # Trang chính (Tailwind CSS)
+│   ├── script.js          # Logic Drag&Drop, Theme Toggle, Slider
+│   └── style.css          # Custom styles
+│
+├── options/               # Cấu hình kiến trúc model
+│   ├── deblur.yml         # Config cho task Deblurring (GoPro)
+│   └── denoise.yml        # Config cho task Denoising (SIDD)
+│
+├── basicsr/               # Core AI Engine (PyTorch)
+│   ├── models/            # Model definitions
+│   ├── utils/             # Tiện ích xử lý ảnh
+│   └── ...
+│
 └── experiments/
-    └── pretrained_models/ # Thư mục chứa Model parameters (.pth)
+    └── pretrained_models/ # Thư mục chứa file trọng số (.pth)
+        ├── deblur.pth     # ~260MB (tải bằng download_models.py)
+        └── denoise.pth    # ~470MB (tải bằng download_models.py)
 ```
 
-## 📝 Bản quyền & Giấy phép
-Mã nguồn NAFNet gốc thuộc MIT License của tác giả. Thiết kế các tùy chỉnh thuật toán hệ thống Web Fast Inference này thuộc phạm vi tài liệu nghiên cứu và triển khai mở rộng.
+---
+
+## 🔧 Cấu hình kỹ thuật
+
+### Backend (server.py)
+- **Framework:** FastAPI + Uvicorn
+- **AI Engine:** PyTorch 1.11 (CPU mode)
+- **Concurrency:** `threading.Lock` chống OOM khi nhiều request đồng thời
+- **Security:** CORS middleware, Content-Type validation, File size limit (10MB)
+- **Cleanup:** `BackgroundTasks` tự động xóa file upload/result sau khi xử lý
+
+### Frontend
+- **CSS Framework:** Tailwind CSS (CDN)
+- **Font:** Inter (Google Fonts)
+- **Theme:** Light / Dark mode toggle (lưu vào localStorage)
+
+---
+
+## 📝 Giấy phép
+
+Mã nguồn NAFNet gốc thuộc [MIT License](LICENSE). Các tùy chỉnh hệ thống Web Inference thuộc phạm vi tài liệu nghiên cứu.
