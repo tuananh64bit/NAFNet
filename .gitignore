@@ -1,3 +1,4 @@
+.venv/
 .idea/*
 *__pycache__*
 *.sh
@@ -5,4 +6,3 @@ results/*
 uploads/*
 experiments/pretrained_models/*
 .DS_Store
-.env/

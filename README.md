@@ -20,8 +20,8 @@ Yêu cầu: `Python 3.10`
 
 Khởi tạo Virtual Environment và cài đặt bằng lệnh:
 ```bash
-python3.10 -m venv .env
-source .env/bin/activate
+python3.10 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 *(Nếu bạn dùng macOS, các chứng chỉ thư viện đã được loại bỏ cờ `+cpu` dư thừa tại tệp req nhằm tương thích với Homebrew).*
@@ -34,7 +34,7 @@ pip install -r requirements.txt
 ### 3. Khởi Động Web Server
 Khởi chạy tệp gốc:
 ```bash
-source .env/bin/activate
+source .venv/bin/activate
 python server.py
 # Hoặc chạy lệnh Uvicorn: uvicorn server:app --host 0.0.0.0 --port 8000
 ```
